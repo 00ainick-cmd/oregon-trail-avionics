@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Oregon Trail: Always Sunny in Aviation Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .game-container {
+            background: #111;
+            border: 3px solid #0f0;
+            padding: 20px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 0 20px #0f0;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 #060;
+            animation: flicker 2s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .tagline {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            color: #090;
+        }
+
+        .status-panel {
+            background: #000;
+            border: 2px solid #0f0;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .status-item {
+            text-align: center;
+            padding: 5px;
+            border: 1px solid #060;
+        }
+
+        .status-label {
+            font-size: 0.8rem;
+            color: #090;
+        }
+
+        .status-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #0f0;
+        }
+
+        .warning { color: #ff0; }
+        .danger { color: #f00; }
+
+        .event-log {
+            background: #000;
+            border: 2px solid #0f0;
+            padding: 15px;
+            margin-bottom: 20px;
+            height: 200px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .event-entry {
+            margin-bottom: 10px;
+            padding: 5px;
+            border-left: 3px solid #060;
+            padding-left: 10px;
+        }
+
+        .event-good { border-left-color: #0f0; }
+        .event-bad { border-left-color: #f00; }
+        .event-neutral { border-left-color: #ff0; }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #000;
+            color: #0f0;
+            border: 2px solid #0f0;
+            padding: 12px 20px;
+            font-family: inherit;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 10px #0f0;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .game-over {
+            text-align: center;
+            font-size: 1.2rem;
+            padding: 20px;
+            border: 3px solid #f00;
+            background: #200;
+            margin-top: 20px;
+        }
+
+        .game-won {
+            border-color: #0f0;
+            background: #020;
+        }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.4rem; }
+            .status-panel { grid-template-columns: repeat(2, 1fr); }
+            .actions { grid-template-columns: 1fr; }
+            .event-log { height: 150px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🛩️ THE OREGON TRAIL 🛩️</h1>
+        <p class="tagline">Always Sunny in Aviation Edition</p>
+
+        <div class="status-panel">
+            <div class="status-item">
+                <div class="status-label">DAY</div>
+                <div class="status-value" id="day">1/30</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">MONEY</div>
+                <div class="status-value" id="money">$5,000</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">REPUTATION</div>
+                <div class="status-value" id="reputation">50</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">PARTS INVENTORY</div>
+                <div class="status-value" id="parts">10</div>
+            </div>
+        </div>
+
+        <div class="event-log" id="eventLog">
+            <div class="event-entry event-neutral">
+                Welcome to Paddy's Aviation Repair Station! The Gang has decided to pivot from bar ownership to aircraft maintenance. What could go wrong?
+            </div>
+        </div>
+
+        <div class="actions" id="actions">
+            <button onclick="game.takeJob()">Take Repair Job</button>
+            <button onclick="game.buyParts()">Buy Parts ($500)</button>
+            <button onclick="game.train()">Train The Gang ($300)</button>
+            <button onclick="game.nextDay()">Next Day</button>
+        </div>
+
+        <div id="gameEnd"></div>
+    </div>
+
+    <script>
+        const game = {
+            day: 1,
+            money: 5000,
+            reputation: 50,
+            parts: 10,
+            maxDays: 30,
+            gameOver: false,
+
+            events: [
+                {
+                    character: "Charlie",
+                    text: "Charlie used cat food to clean the pitot tubes. Surprisingly effective!",
+                    money: 200,
+                    reputation: 5,
+                    parts: -1,
+                    type: "good"
+                },
+                {
+                    character: "Dennis",
+                    text: "Dennis insists the G1000 needs to be 'a five-star display.' He actually calibrated it perfectly while ranting.",
+                    money: 500,
+                    reputation: 10,
+                    parts: 0,
+                    type: "good"
+                },
+                {
+                    character: "Mac",
+                    text: "Mac tried to do an 'ocular patdown' on the avionics rack. He knocked over $1000 worth of equipment.",
+                    money: -1000,
+                    reputation: -15,
+                    parts: -3,
+                    type: "bad"
+                },
+                {
+                    character: "Dee",
+                    text: "A bird flew into Dee while she was installing a transponder. Both Dee and the transponder are damaged.",
+                    money: -500,
+                    reputation: -10,
+                    parts: -2,
+                    type: "bad"
+                },
+                {
+                    character: "Frank",
+                    text: "Frank found a 'guy who knows a guy' for cheap parts. They're actually certified!",
+                    money: -200,
+                    reputation: 0,
+                    parts: 5,
+                    type: "good"
+                },
+                {
+                    character: "Charlie",
+                    text: "Charlie's been living in the hangar. He caught mice that were chewing through wiring harnesses!",
+                    money: 300,
+                    reputation: 5,
+                    parts: 0,
+                    type: "good"
+                },
+                {
+                    character: "Dennis",
+                    text: "Dennis wrote a 50-page manual on 'The D.E.N.N.I.S. System for Avionics.' The FAA is... intrigued?",
+                    money: 0,
+                    reputation: -5,
+                    parts: 0,
+                    type: "neutral"
+                },
+                {
+                    character: "Mac",
+                    text: "Mac insists all repairs must be done shirtless for 'maximum mobility.' Lost a corporate client.",
+                    money: -800,
+                    reputation: -20,
+                    parts: 0,
+                    type: "bad"
+                },
+                {
+                    character: "Dee",
+                    text: "Dee actually read the maintenance manual! She fixed a complex autopilot issue.",
+                    money: 1000,
+                    reputation: 15,
+                    parts: -1,
+                    type: "good"
+                },
+                {
+                    character: "Frank",
+                    text: "Frank started a side business selling 'artisanal zip ties' to other shops. Pure profit!",
+                    money: 400,
+                    reputation: -5,
+                    parts: 0,
+                    type: "neutral"
+                },
+                {
+                    character: "The Gang",
+                    text: "The whole gang worked together on an AOG situation. Chaos, but they pulled it off!",
+                    money: 2000,
+                    reputation: 20,
+                    parts: -5,
+                    type: "good"
+                }
+            ],
+
+            init() {
+                this.updateDisplay();
+                this.addEvent("Day 1: Your journey begins. Can you survive 30 days in aviation maintenance with The Gang?", "neutral");
+            },
+
+            updateDisplay() {
+                document.getElementById('day').textContent = `${this.day}/30`;
+                document.getElementById('money').textContent = `$${this.money.toLocaleString()}`;
+                document.getElementById('reputation').textContent = this.reputation;
+                document.getElementById('parts').textContent = this.parts;
+
+                // Update value colors based on status
+                const moneyEl = document.getElementById('money');
+                moneyEl.className = this.money < 1000 ? 'danger' : this.money < 2000 ? 'warning' : '';
+
+                const repEl = document.getElementById('reputation');
+                repEl.className = this.reputation < 20 ? 'danger' : this.reputation < 40 ? 'warning' : '';
+
+                const partsEl = document.getElementById('parts');
+                partsEl.className = this.parts < 3 ? 'danger' : this.parts < 5 ? 'warning' : '';
+
+                // Disable buttons based on resources
+                document.querySelector('button[onclick="game.buyParts()"]').disabled = this.money < 500 || this.gameOver;
+                document.querySelector('button[onclick="game.train()"]').disabled = this.money < 300 || this.gameOver;
+                document.querySelector('button[onclick="game.takeJob()"]').disabled = this.parts < 1 || this.gameOver;
+                document.querySelector('button[onclick="game.nextDay()"]').disabled = this.gameOver;
+            },
+
+            addEvent(text, type = "neutral") {
+                const log = document.getElementById('eventLog');
+                const entry = document.createElement('div');
+                entry.className = `event-entry event-${type}`;
+                entry.textContent = text;
+                log.appendChild(entry);
+                log.scrollTop = log.scrollHeight;
+            },
+
+            takeJob() {
+                if (this.parts < 1) {
+                    this.addEvent("Can't take jobs without parts!", "bad");
+                    return;
+                }
+
+                const event = this.events[Math.floor(Math.random() * this.events.length)];
+                this.money += event.money;
+                this.reputation += event.reputation;
+                this.parts += event.parts;
+
+                this.addEvent(`Day ${this.day}: ${event.text}`, event.type);
+                this.checkGameOver();
+                this.updateDisplay();
+            },
+
+            buyParts() {
+                if (this.money >= 500) {
+                    this.money -= 500;
+                    this.parts += 5;
+                    this.addEvent(`Day ${this.day}: Bought 5 parts from Aircraft Spruce. The catalog is thicker than Frank is tall.`, "neutral");
+                    this.updateDisplay();
+                }
+            },
+
+            train() {
+                if (this.money >= 300) {
+                    this.money -= 300;
+                    this.reputation += 5;
+                    this.addEvent(`Day ${this.day}: Sent The Gang to training. They mostly just drank at the hotel bar, but learned something!`, "neutral");
+                    this.updateDisplay();
+                }
+            },
+
+            nextDay() {
+                this.day++;
+                this.money -= 200; // Daily operating costs
+
+                if (this.day > this.maxDays) {
+                    this.endGame(true);
+                    return;
+                }
+
+                // Random daily events
+                if (Math.random() < 0.3) {
+                    const randomEvents = [
+                        { text: "FAA inspection today! They found 'creative' interpretations of regulations.", reputation: -10 },
+                        { text: "A satisfied customer referred three friends!", reputation: 15 },
+                        { text: "The hangar rent is due.", money: -1000 },
+                        { text: "Found a $20 bill in the avionics bay!", money: 20 }
+                    ];
+
+                    const evt = randomEvents[Math.floor(Math.random() * randomEvents.length)];
+                    if (evt.money) this.money += evt.money;
+                    if (evt.reputation) this.reputation += evt.reputation;
+                    this.addEvent(`Day ${this.day}: ${evt.text}`, evt.reputation > 0 || evt.money > 0 ? "good" : "bad");
+                } else {
+                    this.addEvent(`Day ${this.day}: A quiet day at Paddy's Aviation. Too quiet...`, "neutral");
+                }
+
+                this.checkGameOver();
+                this.updateDisplay();
+            },
+
+            checkGameOver() {
+                if (this.money <= 0) {
+                    this.endGame(false, "The Gang ran out of money. Back to the bar!");
+                } else if (this.reputation <= 0) {
+                    this.endGame(false, "Your reputation is ruined. Even Spirit Airlines won't hire you.");
+                } else if (this.parts < 0) {
+                    this.parts = 0; // Can't go negative
+                }
+            },
+
+            endGame(survived, reason = "") {
+                this.gameOver = true;
+                const endDiv = document.getElementById('gameEnd');
+
+                if (survived && this.money > 10000 && this.reputation > 80) {
+                    endDiv.className = "game-over game-won";
+                    endDiv.innerHTML = `
+                        <h2>🏆 LEGENDARY SUCCESS! 🏆</h2>
+                        <p>You survived 30 days with $${this.money.toLocaleString()} and ${this.reputation} reputation!</p>
+                        <p>The Gang is now the most successful incompetent repair station in aviation history!</p>
+                        <button onclick="location.reload()">Play Again</button>
+                    `;
+                } else if (survived) {
+                    endDiv.className = "game-over game-won";
+                    endDiv.innerHTML = `
+                        <h2>✈️ YOU SURVIVED! ✈️</h2>
+                        <p>Final Stats: $${this.money.toLocaleString()} | ${this.reputation} reputation</p>
+                        <p>The Gang managed to keep the shop open. Barely.</p>
+                        <button onclick="location.reload()">Play Again</button>
+                    `;
+                } else {
+                    endDiv.className = "game-over";
+                    endDiv.innerHTML = `
+                        <h2>💥 GAME OVER 💥</h2>
+                        <p>${reason}</p>
+                        <p>You lasted ${this.day} days.</p>
+                        <button onclick="location.reload()">Try Again</button>
+                    `;
+                }
+
+                this.updateDisplay();
+            }
+        };
+
+        game.init();
+    </script>
+</body>
+</html>
