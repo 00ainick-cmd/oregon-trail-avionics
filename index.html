@@ -3,444 +3,837 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Oregon Trail: Always Sunny in Aviation Edition</title>
+    <title>The Oregon Trail: Always Sunny Aviation Edition</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
         body {
-            font-family: 'Courier New', monospace;
-            background: #000;
+            font-family: 'Press Start 2P', monospace;
+            background-color: #000;
             color: #0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 10px;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.8;
+            font-size: 14px;
         }
 
         .game-container {
-            background: #111;
+            max-width: 800px;
+            margin: 0 auto;
             border: 3px solid #0f0;
             padding: 20px;
-            max-width: 800px;
-            width: 100%;
-            box-shadow: 0 0 20px #0f0;
+            background-color: #001100;
         }
 
         h1 {
             text-align: center;
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 0 #060;
-            animation: flicker 2s infinite;
+            color: #0f0;
+            font-size: 20px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 0 #030;
         }
 
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-
-        .tagline {
-            text-align: center;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            color: #090;
-        }
-
-        .status-panel {
-            background: #000;
-            border: 2px solid #0f0;
-            padding: 15px;
-            margin-bottom: 20px;
+        .status-bar {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 2px solid #0f0;
+            background-color: #002200;
         }
 
         .status-item {
             text-align: center;
             padding: 5px;
-            border: 1px solid #060;
         }
 
         .status-label {
-            font-size: 0.8rem;
+            font-size: 10px;
             color: #090;
         }
 
         .status-value {
-            font-size: 1.2rem;
-            font-weight: bold;
+            font-size: 16px;
             color: #0f0;
+            margin-top: 5px;
         }
 
-        .warning { color: #ff0; }
-        .danger { color: #f00; }
-
-        .event-log {
-            background: #000;
+        .event-box {
             border: 2px solid #0f0;
-            padding: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            background-color: #001a00;
+            min-height: 150px;
+        }
+
+        .event-title {
+            color: #ff0;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .event-text {
+            color: #0f0;
             margin-bottom: 20px;
-            height: 200px;
-            overflow-y: auto;
-            font-size: 0.9rem;
-            line-height: 1.4;
+            line-height: 2;
         }
 
-        .event-entry {
-            margin-bottom: 10px;
-            padding: 5px;
-            border-left: 3px solid #060;
-            padding-left: 10px;
-        }
-
-        .event-good { border-left-color: #0f0; }
-        .event-bad { border-left-color: #f00; }
-        .event-neutral { border-left-color: #ff0; }
-
-        .actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        .choices {
+            display: flex;
+            flex-direction: column;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-top: 20px;
         }
 
         button {
-            background: #000;
+            font-family: 'Press Start 2P', monospace;
+            background-color: #003300;
             color: #0f0;
             border: 2px solid #0f0;
-            padding: 12px 20px;
-            font-family: inherit;
-            font-size: 1rem;
+            padding: 15px 20px;
             cursor: pointer;
+            font-size: 12px;
             transition: all 0.3s;
-            text-transform: uppercase;
+            text-align: left;
         }
 
         button:hover {
-            background: #0f0;
-            color: #000;
+            background-color: #005500;
             box-shadow: 0 0 10px #0f0;
+            transform: translateY(-2px);
         }
 
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        button:active {
+            transform: translateY(0);
         }
 
         .game-over {
             text-align: center;
-            font-size: 1.2rem;
-            padding: 20px;
+            padding: 40px;
             border: 3px solid #f00;
-            background: #200;
-            margin-top: 20px;
+            background-color: #220000;
         }
 
-        .game-won {
+        .game-over h2 {
+            color: #f00;
+            margin-bottom: 20px;
+        }
+
+        .success {
             border-color: #0f0;
-            background: #020;
+            background-color: #002200;
+        }
+
+        .success h2 {
+            color: #0f0;
+        }
+
+        .final-stats {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #111;
+            border: 1px solid #0f0;
+        }
+
+        .intro-screen {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .intro-screen h2 {
+            color: #ff0;
+            margin-bottom: 30px;
+        }
+
+        .intro-text {
+            margin-bottom: 30px;
+            line-height: 2;
+        }
+
+        .warning {
+            color: #f00;
+        }
+
+        .good {
+            color: #0f0;
         }
 
         @media (max-width: 600px) {
-            h1 { font-size: 1.4rem; }
-            .status-panel { grid-template-columns: repeat(2, 1fr); }
-            .actions { grid-template-columns: 1fr; }
-            .event-log { height: 150px; }
+            body {
+                font-size: 12px;
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 16px;
+            }
+
+            button {
+                font-size: 10px;
+                padding: 12px 15px;
+            }
+
+            .status-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <h1>🛩️ THE OREGON TRAIL 🛩️</h1>
-        <p class="tagline">Always Sunny in Aviation Edition</p>
+        <h1>THE OREGON TRAIL: AVIATION EDITION</h1>
 
-        <div class="status-panel">
-            <div class="status-item">
-                <div class="status-label">DAY</div>
-                <div class="status-value" id="day">1/30</div>
+        <div id="intro-screen" class="intro-screen">
+            <h2>WELCOME TO AOG INTERNATIONAL</h2>
+            <div class="intro-text">
+                You've just been promoted to Lead Avionics Tech at AOG International,
+                the only 145 Repair Station run by The Gang from Paddy's Pub.
+                <br><br>
+                Your mission: Survive 30 days without the FAA shutting you down.
+                <br><br>
+                <span class="warning">WARNING:</span> Dennis, Dee, Charlie, Mac, and Frank
+                are your coworkers. Good luck.
             </div>
-            <div class="status-item">
-                <div class="status-label">MONEY</div>
-                <div class="status-value" id="money">$5,000</div>
+            <button onclick="startGame()">BEGIN YOUR SUFFERING</button>
+        </div>
+
+        <div id="game-screen" style="display: none;">
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="status-label">DAY</div>
+                    <div class="status-value" id="day">1</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">MONEY</div>
+                    <div class="status-value">$<span id="money">5000</span></div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">REPUTATION</div>
+                    <div class="status-value"><span id="reputation">50</span>%</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">FAA HEAT</div>
+                    <div class="status-value"><span id="faa">0</span>%</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-label">PARTS</div>
+                    <div class="status-value" id="parts">100</div>
+                </div>
             </div>
-            <div class="status-item">
-                <div class="status-label">REPUTATION</div>
-                <div class="status-value" id="reputation">50</div>
-            </div>
-            <div class="status-item">
-                <div class="status-label">PARTS INVENTORY</div>
-                <div class="status-value" id="parts">10</div>
+
+            <div id="event-box" class="event-box">
+                <!-- Events appear here -->
             </div>
         </div>
 
-        <div class="event-log" id="eventLog">
-            <div class="event-entry event-neutral">
-                Welcome to Paddy's Aviation Repair Station! The Gang has decided to pivot from bar ownership to aircraft maintenance. What could go wrong?
-            </div>
+        <div id="game-over-screen" style="display: none;">
+            <!-- Game over content appears here -->
         </div>
-
-        <div class="actions" id="actions">
-            <button onclick="game.takeJob()">Take Repair Job</button>
-            <button onclick="game.buyParts()">Buy Parts ($500)</button>
-            <button onclick="game.train()">Train The Gang ($300)</button>
-            <button onclick="game.nextDay()">Next Day</button>
-        </div>
-
-        <div id="gameEnd"></div>
     </div>
 
     <script>
-        const game = {
+        // Game state
+        let gameState = {
             day: 1,
             money: 5000,
             reputation: 50,
-            parts: 10,
-            maxDays: 30,
-            gameOver: false,
-
-            events: [
-                {
-                    character: "Charlie",
-                    text: "Charlie used cat food to clean the pitot tubes. Surprisingly effective!",
-                    money: 200,
-                    reputation: 5,
-                    parts: -1,
-                    type: "good"
-                },
-                {
-                    character: "Dennis",
-                    text: "Dennis insists the G1000 needs to be 'a five-star display.' He actually calibrated it perfectly while ranting.",
-                    money: 500,
-                    reputation: 10,
-                    parts: 0,
-                    type: "good"
-                },
-                {
-                    character: "Mac",
-                    text: "Mac tried to do an 'ocular patdown' on the avionics rack. He knocked over $1000 worth of equipment.",
-                    money: -1000,
-                    reputation: -15,
-                    parts: -3,
-                    type: "bad"
-                },
-                {
-                    character: "Dee",
-                    text: "A bird flew into Dee while she was installing a transponder. Both Dee and the transponder are damaged.",
-                    money: -500,
-                    reputation: -10,
-                    parts: -2,
-                    type: "bad"
-                },
-                {
-                    character: "Frank",
-                    text: "Frank found a 'guy who knows a guy' for cheap parts. They're actually certified!",
-                    money: -200,
-                    reputation: 0,
-                    parts: 5,
-                    type: "good"
-                },
-                {
-                    character: "Charlie",
-                    text: "Charlie's been living in the hangar. He caught mice that were chewing through wiring harnesses!",
-                    money: 300,
-                    reputation: 5,
-                    parts: 0,
-                    type: "good"
-                },
-                {
-                    character: "Dennis",
-                    text: "Dennis wrote a 50-page manual on 'The D.E.N.N.I.S. System for Avionics.' The FAA is... intrigued?",
-                    money: 0,
-                    reputation: -5,
-                    parts: 0,
-                    type: "neutral"
-                },
-                {
-                    character: "Mac",
-                    text: "Mac insists all repairs must be done shirtless for 'maximum mobility.' Lost a corporate client.",
-                    money: -800,
-                    reputation: -20,
-                    parts: 0,
-                    type: "bad"
-                },
-                {
-                    character: "Dee",
-                    text: "Dee actually read the maintenance manual! She fixed a complex autopilot issue.",
-                    money: 1000,
-                    reputation: 15,
-                    parts: -1,
-                    type: "good"
-                },
-                {
-                    character: "Frank",
-                    text: "Frank started a side business selling 'artisanal zip ties' to other shops. Pure profit!",
-                    money: 400,
-                    reputation: -5,
-                    parts: 0,
-                    type: "neutral"
-                },
-                {
-                    character: "The Gang",
-                    text: "The whole gang worked together on an AOG situation. Chaos, but they pulled it off!",
-                    money: 2000,
-                    reputation: 20,
-                    parts: -5,
-                    type: "good"
-                }
-            ],
-
-            init() {
-                this.updateDisplay();
-                this.addEvent("Day 1: Your journey begins. Can you survive 30 days in aviation maintenance with The Gang?", "neutral");
-            },
-
-            updateDisplay() {
-                document.getElementById('day').textContent = `${this.day}/30`;
-                document.getElementById('money').textContent = `$${this.money.toLocaleString()}`;
-                document.getElementById('reputation').textContent = this.reputation;
-                document.getElementById('parts').textContent = this.parts;
-
-                // Update value colors based on status
-                const moneyEl = document.getElementById('money');
-                moneyEl.className = this.money < 1000 ? 'danger' : this.money < 2000 ? 'warning' : '';
-
-                const repEl = document.getElementById('reputation');
-                repEl.className = this.reputation < 20 ? 'danger' : this.reputation < 40 ? 'warning' : '';
-
-                const partsEl = document.getElementById('parts');
-                partsEl.className = this.parts < 3 ? 'danger' : this.parts < 5 ? 'warning' : '';
-
-                // Disable buttons based on resources
-                document.querySelector('button[onclick="game.buyParts()"]').disabled = this.money < 500 || this.gameOver;
-                document.querySelector('button[onclick="game.train()"]').disabled = this.money < 300 || this.gameOver;
-                document.querySelector('button[onclick="game.takeJob()"]').disabled = this.parts < 1 || this.gameOver;
-                document.querySelector('button[onclick="game.nextDay()"]').disabled = this.gameOver;
-            },
-
-            addEvent(text, type = "neutral") {
-                const log = document.getElementById('eventLog');
-                const entry = document.createElement('div');
-                entry.className = `event-entry event-${type}`;
-                entry.textContent = text;
-                log.appendChild(entry);
-                log.scrollTop = log.scrollHeight;
-            },
-
-            takeJob() {
-                if (this.parts < 1) {
-                    this.addEvent("Can't take jobs without parts!", "bad");
-                    return;
-                }
-
-                const event = this.events[Math.floor(Math.random() * this.events.length)];
-                this.money += event.money;
-                this.reputation += event.reputation;
-                this.parts += event.parts;
-
-                this.addEvent(`Day ${this.day}: ${event.text}`, event.type);
-                this.checkGameOver();
-                this.updateDisplay();
-            },
-
-            buyParts() {
-                if (this.money >= 500) {
-                    this.money -= 500;
-                    this.parts += 5;
-                    this.addEvent(`Day ${this.day}: Bought 5 parts from Aircraft Spruce. The catalog is thicker than Frank is tall.`, "neutral");
-                    this.updateDisplay();
-                }
-            },
-
-            train() {
-                if (this.money >= 300) {
-                    this.money -= 300;
-                    this.reputation += 5;
-                    this.addEvent(`Day ${this.day}: Sent The Gang to training. They mostly just drank at the hotel bar, but learned something!`, "neutral");
-                    this.updateDisplay();
-                }
-            },
-
-            nextDay() {
-                this.day++;
-                this.money -= 200; // Daily operating costs
-
-                if (this.day > this.maxDays) {
-                    this.endGame(true);
-                    return;
-                }
-
-                // Random daily events
-                if (Math.random() < 0.3) {
-                    const randomEvents = [
-                        { text: "FAA inspection today! They found 'creative' interpretations of regulations.", reputation: -10 },
-                        { text: "A satisfied customer referred three friends!", reputation: 15 },
-                        { text: "The hangar rent is due.", money: -1000 },
-                        { text: "Found a $20 bill in the avionics bay!", money: 20 }
-                    ];
-
-                    const evt = randomEvents[Math.floor(Math.random() * randomEvents.length)];
-                    if (evt.money) this.money += evt.money;
-                    if (evt.reputation) this.reputation += evt.reputation;
-                    this.addEvent(`Day ${this.day}: ${evt.text}`, evt.reputation > 0 || evt.money > 0 ? "good" : "bad");
-                } else {
-                    this.addEvent(`Day ${this.day}: A quiet day at Paddy's Aviation. Too quiet...`, "neutral");
-                }
-
-                this.checkGameOver();
-                this.updateDisplay();
-            },
-
-            checkGameOver() {
-                if (this.money <= 0) {
-                    this.endGame(false, "The Gang ran out of money. Back to the bar!");
-                } else if (this.reputation <= 0) {
-                    this.endGame(false, "Your reputation is ruined. Even Spirit Airlines won't hire you.");
-                } else if (this.parts < 0) {
-                    this.parts = 0; // Can't go negative
-                }
-            },
-
-            endGame(survived, reason = "") {
-                this.gameOver = true;
-                const endDiv = document.getElementById('gameEnd');
-
-                if (survived && this.money > 10000 && this.reputation > 80) {
-                    endDiv.className = "game-over game-won";
-                    endDiv.innerHTML = `
-                        <h2>🏆 LEGENDARY SUCCESS! 🏆</h2>
-                        <p>You survived 30 days with $${this.money.toLocaleString()} and ${this.reputation} reputation!</p>
-                        <p>The Gang is now the most successful incompetent repair station in aviation history!</p>
-                        <button onclick="location.reload()">Play Again</button>
-                    `;
-                } else if (survived) {
-                    endDiv.className = "game-over game-won";
-                    endDiv.innerHTML = `
-                        <h2>✈️ YOU SURVIVED! ✈️</h2>
-                        <p>Final Stats: $${this.money.toLocaleString()} | ${this.reputation} reputation</p>
-                        <p>The Gang managed to keep the shop open. Barely.</p>
-                        <button onclick="location.reload()">Play Again</button>
-                    `;
-                } else {
-                    endDiv.className = "game-over";
-                    endDiv.innerHTML = `
-                        <h2>💥 GAME OVER 💥</h2>
-                        <p>${reason}</p>
-                        <p>You lasted ${this.day} days.</p>
-                        <button onclick="location.reload()">Try Again</button>
-                    `;
-                }
-
-                this.updateDisplay();
-            }
+            faaHeat: 0,
+            parts: 100,
+            currentEvent: null
         };
 
-        game.init();
+        // Events array - The Gang causes chaos
+        const events = [
+            // Dennis Events
+            {
+                character: "Dennis",
+                title: "THE GOLDEN GOD DEMANDS PERFECTION",
+                text: "Dennis refuses to sign off on a G1000 repair because the screws aren't aligned at EXACTLY 90-degree angles. The aircraft is AOG and the customer is furious.",
+                choices: [
+                    {
+                        text: "Redo all the screws to his satisfaction",
+                        outcome: {
+                            money: -500,
+                            reputation: 10,
+                            faaHeat: 0,
+                            parts: -10,
+                            result: "Dennis finally approves after 6 hours. He calls it 'adequate.'"
+                        }
+                    },
+                    {
+                        text: "Forge his signature and ship it",
+                        outcome: {
+                            money: 1000,
+                            reputation: -20,
+                            faaHeat: 15,
+                            parts: 0,
+                            result: "It ships, but Dennis files an anonymous FAA complaint about 'standards.'"
+                        }
+                    },
+                    {
+                        text: "Have another tech sign off",
+                        outcome: {
+                            money: 0,
+                            reputation: -10,
+                            faaHeat: 5,
+                            parts: 0,
+                            result: "Dennis goes on a week-long sulk, productivity drops."
+                        }
+                    }
+                ]
+            },
+
+            // Dee Events
+            {
+                character: "Dee",
+                title: "DEE VS. THE PITOT TUBE",
+                text: "Dee tried to clean a pitot tube with a pressure washer because 'birds are disgusting.' The entire air data system is destroyed.",
+                choices: [
+                    {
+                        text: "Make her pay for the replacement",
+                        outcome: {
+                            money: 500,
+                            reputation: 0,
+                            faaHeat: 10,
+                            parts: -30,
+                            result: "She pays but tells customers you're 'basically a scam.'"
+                        }
+                    },
+                    {
+                        text: "Cover it up and eat the cost",
+                        outcome: {
+                            money: -2000,
+                            reputation: 5,
+                            faaHeat: 0,
+                            parts: -40,
+                            result: "You fix it quietly. Dee learns nothing."
+                        }
+                    },
+                    {
+                        text: "Report it properly to the FAA",
+                        outcome: {
+                            money: -1000,
+                            reputation: 15,
+                            faaHeat: -10,
+                            parts: -30,
+                            result: "The FAA appreciates your honesty. Dee calls you a narc."
+                        }
+                    }
+                ]
+            },
+
+            // Charlie Events
+            {
+                character: "Charlie",
+                title: "CHARLIE'S WIRE ORGANIZATION SYSTEM",
+                text: "Charlie has reorganized the wire inventory using 'bird law logic.' Now all wires are sorted by 'how much they look like worms.'",
+                choices: [
+                    {
+                        text: "Let him explain his system",
+                        outcome: {
+                            money: -500,
+                            reputation: -5,
+                            faaHeat: 0,
+                            parts: 0,
+                            result: "After 3 hours, you kind of understand it. Productivity suffers."
+                        }
+                    },
+                    {
+                        text: "Hire someone to reorganize everything",
+                        outcome: {
+                            money: -1500,
+                            reputation: 10,
+                            faaHeat: 0,
+                            parts: 10,
+                            result: "Professional organization restored. Charlie eats the labels."
+                        }
+                    },
+                    {
+                        text: "Work with the chaos",
+                        outcome: {
+                            money: 0,
+                            reputation: -15,
+                            faaHeat: 5,
+                            parts: -20,
+                            result: "Every job takes twice as long. Customers notice."
+                        }
+                    }
+                ]
+            },
+
+            // Mac Events
+            {
+                character: "Mac",
+                title: "MAC'S TOUGH GUY TORQUE SPECS",
+                text: "Mac has been tightening all bolts to 'maximum badass torque' using only his muscles. Multiple components are cracked.",
+                choices: [
+                    {
+                        text: "Buy him a torque wrench and train him",
+                        outcome: {
+                            money: -800,
+                            reputation: 5,
+                            faaHeat: 0,
+                            parts: -10,
+                            result: "He uses it but adds 20% for 'safety gainz.'"
+                        }
+                    },
+                    {
+                        text: "Ban him from using tools",
+                        outcome: {
+                            money: 0,
+                            reputation: -10,
+                            faaHeat: 0,
+                            parts: 0,
+                            result: "He just flexes near aircraft now. Customers are confused."
+                        }
+                    },
+                    {
+                        text: "Have him redo everything properly",
+                        outcome: {
+                            money: -2000,
+                            reputation: 0,
+                            faaHeat: -5,
+                            parts: -30,
+                            result: "Fixed, but Mac's ego is bruised. He starts a gym in the hangar."
+                        }
+                    }
+                ]
+            },
+
+            // Frank Events
+            {
+                character: "Frank",
+                title: "FRANK'S COUNTERFEIT COMPONENTS",
+                text: "Frank found a 'guy' who sells avionics parts for 90% off. They're definitely counterfeit. He already bought $10,000 worth.",
+                choices: [
+                    {
+                        text: "Use them anyway - money is money",
+                        outcome: {
+                            money: 3000,
+                            reputation: -30,
+                            faaHeat: 40,
+                            parts: 50,
+                            result: "Huge profit until the FAA investigates. This won't end well."
+                        }
+                    },
+                    {
+                        text: "Destroy them and ban Frank from purchasing",
+                        outcome: {
+                            money: -2000,
+                            reputation: 20,
+                            faaHeat: -15,
+                            parts: 0,
+                            result: "You do the right thing. Frank starts a revenge scheme."
+                        }
+                    },
+                    {
+                        text: "Try to return them to Frank's 'guy'",
+                        outcome: {
+                            money: -500,
+                            reputation: 0,
+                            faaHeat: 10,
+                            parts: 0,
+                            result: "The 'guy' vanished. You're stuck with garbage. Frank: 'Cost of doing business!'"
+                        }
+                    }
+                ]
+            },
+
+            // Group Events
+            {
+                character: "The Gang",
+                title: "THE GANG TRIES 'SYNERGY'",
+                text: "The Gang held a meeting and decided to 'synergize operations.' They've now cross-trained each other wrong on purpose.",
+                choices: [
+                    {
+                        text: "Let it play out - maybe they'll learn",
+                        outcome: {
+                            money: -1500,
+                            reputation: -25,
+                            faaHeat: 20,
+                            parts: -20,
+                            result: "Spoiler: They didn't learn. Everything is worse now."
+                        }
+                    },
+                    {
+                        text: "Separate them immediately",
+                        outcome: {
+                            money: -500,
+                            reputation: 5,
+                            faaHeat: 0,
+                            parts: 0,
+                            result: "They work alone now, productivity drops but quality improves."
+                        }
+                    },
+                    {
+                        text: "Hire a consultant to fix this",
+                        outcome: {
+                            money: -3000,
+                            reputation: 10,
+                            faaHeat: -10,
+                            parts: 0,
+                            result: "The consultant quits after 2 days. 'These people are insane.'"
+                        }
+                    }
+                ]
+            },
+
+            // Customer Events
+            {
+                character: "Customer",
+                title: "VIP AIRCRAFT ARRIVES",
+                text: "A Fortune 500 CEO's G650 needs an AOG repair. This could make or break your reputation.",
+                choices: [
+                    {
+                        text: "Put your best tech on it (not The Gang)",
+                        outcome: {
+                            money: 5000,
+                            reputation: 30,
+                            faaHeat: 0,
+                            parts: -40,
+                            result: "Perfect repair. The CEO recommends you to other executives."
+                        }
+                    },
+                    {
+                        text: "Let The Gang handle it for the experience",
+                        outcome: {
+                            money: -2000,
+                            reputation: -40,
+                            faaHeat: 25,
+                            parts: -60,
+                            result: "Dennis insults the CEO. Charlie lives in the jet for 2 days. Disaster."
+                        }
+                    },
+                    {
+                        text: "Subcontract to a competitor",
+                        outcome: {
+                            money: 1000,
+                            reputation: -10,
+                            faaHeat: 0,
+                            parts: 0,
+                            result: "You make a small profit but look incompetent."
+                        }
+                    }
+                ]
+            },
+
+            // FAA Events
+            {
+                character: "FAA",
+                title: "SURPRISE FAA INSPECTION",
+                text: "The FAA is here for a surprise inspection. The Gang is currently using the repair station for a wrestling tournament.",
+                choices: [
+                    {
+                        text: "Stall while you clean up",
+                        outcome: {
+                            money: -1000,
+                            reputation: -10,
+                            faaHeat: 15,
+                            parts: 0,
+                            result: "You barely pass. The inspector is suspicious of the wrestling ring."
+                        }
+                    },
+                    {
+                        text: "Be completely honest",
+                        outcome: {
+                            money: -2000,
+                            reputation: 5,
+                            faaHeat: 30,
+                            parts: 0,
+                            result: "Multiple violations cited, but they respect your honesty... sort of."
+                        }
+                    },
+                    {
+                        text: "Bribe them with Frank's money",
+                        outcome: {
+                            money: -3000,
+                            reputation: -20,
+                            faaHeat: -20,
+                            parts: 0,
+                            result: "It works, but now you're in deep with Frank. 'You owe me.'"
+                        }
+                    }
+                ]
+            },
+
+            // Equipment Events
+            {
+                character: "Equipment",
+                title: "THE MULTIMETER INCIDENT",
+                text: "Someone (probably Charlie) put all the multimeters in the microwave to 'charge them faster.' You need new test equipment.",
+                choices: [
+                    {
+                        text: "Buy professional equipment",
+                        outcome: {
+                            money: -4000,
+                            reputation: 15,
+                            faaHeat: -5,
+                            parts: 0,
+                            result: "New equipment arrives. You lock it away from The Gang."
+                        }
+                    },
+                    {
+                        text: "Buy cheap equipment from Frank's guy",
+                        outcome: {
+                            money: -500,
+                            reputation: -15,
+                            faaHeat: 10,
+                            parts: 0,
+                            result: "The equipment catches fire during first use. Of course it does."
+                        }
+                    },
+                    {
+                        text: "Make The Gang share one multimeter",
+                        outcome: {
+                            money: -1000,
+                            reputation: -20,
+                            faaHeat: 5,
+                            parts: 0,
+                            result: "They fight over it daily. Productivity plummets."
+                        }
+                    }
+                ]
+            },
+
+            // Training Events
+            {
+                character: "Training",
+                title: "MANDATORY SAFETY TRAINING",
+                text: "Insurance requires annual safety training. The Gang has turned it into a drinking game.",
+                choices: [
+                    {
+                        text: "Let them continue - they're engaged",
+                        outcome: {
+                            money: 0,
+                            reputation: -15,
+                            faaHeat: 20,
+                            parts: -10,
+                            result: "They're very engaged. Also very drunk. Mac lifts a Cessna."
+                        }
+                    },
+                    {
+                        text: "Hire a professional trainer",
+                        outcome: {
+                            money: -2000,
+                            reputation: 10,
+                            faaHeat: -10,
+                            parts: 0,
+                            result: "Proper training completed. The Gang calls you 'no fun.'"
+                        }
+                    },
+                    {
+                        text: "Cancel training, forge the certificates",
+                        outcome: {
+                            money: 500,
+                            reputation: -5,
+                            faaHeat: 25,
+                            parts: 0,
+                            result: "You save money but create a massive liability. Classic Paddy's move."
+                        }
+                    }
+                ]
+            },
+
+            // Competition Events
+            {
+                character: "Competition",
+                title: "COMPETITOR POACHING ATTEMPT",
+                text: "A competing repair station is trying to poach your only competent tech (not from The Gang).",
+                choices: [
+                    {
+                        text: "Match their offer",
+                        outcome: {
+                            money: -3000,
+                            reputation: 10,
+                            faaHeat: 0,
+                            parts: 0,
+                            result: "You keep your good tech but money is tight now."
+                        }
+                    },
+                    {
+                        text: "Let them go",
+                        outcome: {
+                            money: 0,
+                            reputation: -30,
+                            faaHeat: 15,
+                            parts: 0,
+                            result: "You're now 100% dependent on The Gang. God help you."
+                        }
+                    },
+                    {
+                        text: "Have The Gang 'convince' them to stay",
+                        outcome: {
+                            money: -500,
+                            reputation: -10,
+                            faaHeat: 5,
+                            parts: 0,
+                            result: "The tech stays out of fear. The Gang's methods were... concerning."
+                        }
+                    }
+                ]
+            }
+        ];
+
+        // Start the game
+        function startGame() {
+            document.getElementById('intro-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            nextDay();
+        }
+
+        // Progress to next day
+        function nextDay() {
+            if (gameState.day > 30) {
+                endGame(true);
+                return;
+            }
+
+            // Check failure conditions
+            if (gameState.money <= 0) {
+                endGame(false, "You ran out of money. The shop is bankrupt.");
+                return;
+            }
+            if (gameState.reputation <= 0) {
+                endGame(false, "Your reputation is destroyed. No customers will work with you.");
+                return;
+            }
+            if (gameState.faaHeat >= 100) {
+                endGame(false, "The FAA shut you down. Too many violations.");
+                return;
+            }
+            if (gameState.parts <= 0) {
+                endGame(false, "You ran out of parts. Can't fix planes without parts.");
+                return;
+            }
+
+            // Random daily costs
+            gameState.money -= Math.floor(Math.random() * 200) + 100;
+
+            // Update display
+            updateDisplay();
+
+            // Generate random event
+            const event = events[Math.floor(Math.random() * events.length)];
+            gameState.currentEvent = event;
+            displayEvent(event);
+        }
+
+        // Display current event
+        function displayEvent(event) {
+            const eventBox = document.getElementById('event-box');
+            eventBox.innerHTML = `
+                <div class="event-title">${event.title}</div>
+                <div class="event-text">${event.text}</div>
+                <div class="choices">
+                    ${event.choices.map((choice, index) =>
+                        `<button onclick="makeChoice(${index})">${choice.text}</button>`
+                    ).join('')}
+                </div>
+            `;
+        }
+
+        // Handle player choice
+        function makeChoice(choiceIndex) {
+            const choice = gameState.currentEvent.choices[choiceIndex];
+            const outcome = choice.outcome;
+
+            // Apply outcomes
+            gameState.money += outcome.money;
+            gameState.reputation += outcome.reputation;
+            gameState.faaHeat += outcome.faaHeat;
+            gameState.parts += outcome.parts;
+
+            // Clamp values
+            gameState.reputation = Math.max(0, Math.min(100, gameState.reputation));
+            gameState.faaHeat = Math.max(0, Math.min(100, gameState.faaHeat));
+            gameState.parts = Math.max(0, gameState.parts);
+
+            // Show result
+            const eventBox = document.getElementById('event-box');
+            eventBox.innerHTML = `
+                <div class="event-title">OUTCOME</div>
+                <div class="event-text">${outcome.result}</div>
+                <div class="event-text" style="margin-top: 20px;">
+                    Money: ${outcome.money >= 0 ? '+' : ''}$${outcome.money}<br>
+                    Reputation: ${outcome.reputation >= 0 ? '+' : ''}${outcome.reputation}%<br>
+                    FAA Heat: ${outcome.faaHeat >= 0 ? '+' : ''}${outcome.faaHeat}%<br>
+                    Parts: ${outcome.parts >= 0 ? '+' : ''}${outcome.parts}
+                </div>
+                <button onclick="continueGame()" style="margin-top: 20px;">Continue</button>
+            `;
+
+            updateDisplay();
+        }
+
+        // Continue to next day
+        function continueGame() {
+            gameState.day++;
+            nextDay();
+        }
+
+        // Update display
+        function updateDisplay() {
+            document.getElementById('day').textContent = gameState.day;
+            document.getElementById('money').textContent = Math.max(0, gameState.money);
+            document.getElementById('reputation').textContent = gameState.reputation;
+            document.getElementById('faa').textContent = gameState.faaHeat;
+            document.getElementById('parts').textContent = gameState.parts;
+
+            // Color code critical values
+            document.getElementById('money').style.color = gameState.money < 1000 ? '#f00' : '#0f0';
+            document.getElementById('reputation').style.color = gameState.reputation < 20 ? '#f00' : '#0f0';
+            document.getElementById('faa').style.color = gameState.faaHeat > 80 ? '#f00' : '#0f0';
+            document.getElementById('parts').style.color = gameState.parts < 20 ? '#f00' : '#0f0';
+        }
+
+        // End game
+        function endGame(success, reason) {
+            document.getElementById('game-screen').style.display = 'none';
+            const gameOverScreen = document.getElementById('game-over-screen');
+            gameOverScreen.style.display = 'block';
+
+            if (success && gameState.money > 1000 && gameState.reputation > 30) {
+                gameOverScreen.innerHTML = `
+                    <div class="game-over success">
+                        <h2>YOU SURVIVED 30 DAYS!</h2>
+                        <div class="final-stats">
+                            <div>Final Money: $${gameState.money}</div>
+                            <div>Final Reputation: ${gameState.reputation}%</div>
+                            <div>Final FAA Heat: ${gameState.faaHeat}%</div>
+                            <div>Remaining Parts: ${gameState.parts}</div>
+                        </div>
+                        <div class="event-text">
+                            Against all odds, you kept AOG International running for a full month.
+                            The Gang didn't burn it down, the FAA didn't shut you down, and you even made money.
+                            <br><br>
+                            You are a legend in the aviation maintenance world.
+                            <br><br>
+                            The Gang immediately takes credit for your success.
+                        </div>
+                        <button onclick="location.reload()">Play Again</button>
+                    </div>
+                `;
+            } else {
+                gameOverScreen.innerHTML = `
+                    <div class="game-over">
+                        <h2>GAME OVER</h2>
+                        <div class="event-text warning">
+                            ${reason || "You barely survived but the shop is in ruins."}
+                            <br><br>
+                            Day reached: ${gameState.day}/30
+                        </div>
+                        <div class="final-stats">
+                            <div>Final Money: $${Math.max(0, gameState.money)}</div>
+                            <div>Final Reputation: ${gameState.reputation}%</div>
+                            <div>Final FAA Heat: ${gameState.faaHeat}%</div>
+                            <div>Remaining Parts: ${gameState.parts}</div>
+                        </div>
+                        <button onclick="location.reload()">Try Again</button>
+                    </div>
+                `;
+            }
+        }
     </script>
 </body>
 </html>
